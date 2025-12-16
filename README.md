@@ -1,0 +1,2 @@
+# sample_vscode_autoapprove_msbuild
+GitHub Copilotによるmsbuildの実行方法が多様すぎてautoApproveが難しいため、リポジトリ固有のスクリプトとVSCode設定で許可を試みる
