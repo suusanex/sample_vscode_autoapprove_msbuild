@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="../../TestSRC/CppCliModuleTest/CppCliModuleTest.csproj" />
+  <Project Path="../../TestSRC/MainAppTest/MainAppTest.csproj" />
+  <Project Path="MainApp/MainApp.csproj" />
+</Solution>
