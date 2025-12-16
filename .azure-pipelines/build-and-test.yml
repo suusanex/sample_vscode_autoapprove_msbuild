@@ -1,0 +1,34 @@
+trigger:
+- main
+
+pool:
+  vmImage: windows-latest
+
+steps:
+- task: UseDotNet@2
+  displayName: Install .NET SDK
+  inputs:
+    packageType: sdk
+    version: 8.x
+
+- task: PowerShell@2
+  displayName: Restore tools
+  inputs:
+    targetType: inline
+    script: dotnet tool restore
+
+- task: PowerShell@2
+  displayName: Build and test (Cake)
+  inputs:
+    targetType: inline
+    script: |
+      dotnet cake --solution=SRC/Apps/Apps.slnx -- /p:Configuration=Release -- /Logger:trx /ResultsDirectory:$(Agent.TempDirectory)\TestResults
+    failOnStderr: false
+
+- task: PublishTestResults@2
+  displayName: Publish test results
+  condition: succeededOrFailed()
+  inputs:
+    testResultsFormat: VSTest
+    testResultsFiles: $(Agent.TempDirectory)\TestResults\**\*.trx
+    failTaskOnFailedTests: true

@@ -88,11 +88,13 @@ dir build\build.cake
 
 ## Basic Usage
 
+> Note: The Cake script is located in the `build/` directory. Always specify `--script=build/build.cake` when running commands to ensure the correct script is executed in environments with multiple Cake scripts.
+
 ### Build Only
 
 **Command**:
 ```bash
-dotnet cake --target=Build --solution=SRC/Apps/Apps.slnx
+dotnet cake --script=build/build.cake --target=Build --solution=SRC/Apps/Apps.slnx
 ```
 
 **What it does**:
@@ -114,7 +116,7 @@ Build succeeded.
 
 **Command**:
 ```bash
-dotnet cake --target=Test
+dotnet cake --script=build/build.cake --target=Test
 ```
 
 **What it does**:
@@ -140,7 +142,7 @@ Test Run Successful.
 
 **Command**:
 ```bash
-dotnet cake --solution=SRC/Apps/Apps.slnx
+dotnet cake --script=build/build.cake --solution=SRC/Apps/Apps.slnx
 ```
 
 **What it does**:
@@ -153,12 +155,20 @@ dotnet cake --solution=SRC/Apps/Apps.slnx
 
 ---
 
+### Show Usage (Help)
+
+```bash
+dotnet cake --script=build/build.cake --target=Help
+```
+
+---
+
 ## Common Scenarios
 
 ### Scenario 1: Debug Build + Run All Tests
 
 ```bash
-dotnet cake --solution=SRC/Apps/Apps.slnx
+dotnet cake --script=build/build.cake --solution=SRC/Apps/Apps.slnx
 ```
 
 **Use Case**: Standard local development workflow
@@ -168,7 +178,7 @@ dotnet cake --solution=SRC/Apps/Apps.slnx
 ### Scenario 2: Release Build + Run Specific Tests
 
 ```bash
-dotnet cake --solution=SRC/Apps/Apps.slnx -- /p:Configuration=Release -- /TestCaseFilter:"Priority=1"
+dotnet cake --script=build/build.cake --solution=SRC/Apps/Apps.slnx -- /p:Configuration=Release -- /TestCaseFilter:"Priority=1"
 ```
 
 **Explanation**:
@@ -182,7 +192,7 @@ dotnet cake --solution=SRC/Apps/Apps.slnx -- /p:Configuration=Release -- /TestCa
 ### Scenario 3: Build Only (Skip Tests)
 
 ```bash
-dotnet cake --target=Build --solution=SRC/Apps/Apps.slnx -- /p:Configuration=Release
+dotnet cake --script=build/build.cake --target=Build --solution=SRC/Apps/Apps.slnx -- /p:Configuration=Release
 ```
 
 **Use Case**: Quick iteration when tests aren't needed
@@ -192,7 +202,7 @@ dotnet cake --target=Build --solution=SRC/Apps/Apps.slnx -- /p:Configuration=Rel
 ### Scenario 4: Test Only (After Manual Build)
 
 ```bash
-dotnet cake --target=Test
+dotnet cake --script=build/build.cake --target=Test
 ```
 
 **Use Case**: Re-run tests after making code changes in IDE
@@ -202,7 +212,7 @@ dotnet cake --target=Test
 ### Scenario 5: Parallel Build + Parallel Tests
 
 ```bash
-dotnet cake --solution=SRC/Apps/Apps.slnx -- /m:4 -- /Parallel
+dotnet cake --script=build/build.cake --solution=SRC/Apps/Apps.slnx -- /m:4 -- /Parallel
 ```
 
 **Explanation**:
@@ -216,7 +226,7 @@ dotnet cake --solution=SRC/Apps/Apps.slnx -- /m:4 -- /Parallel
 ### Scenario 6: Verbose Logging
 
 ```bash
-dotnet cake --solution=SRC/Apps/Apps.slnx -- /v:detailed -- /Logger:"console;verbosity=detailed"
+dotnet cake --script=build/build.cake --solution=SRC/Apps/Apps.slnx -- /v:detailed -- /Logger:"console;verbosity=detailed"
 ```
 
 **Explanation**:
@@ -237,10 +247,10 @@ dotnet cake --solution=SRC/Apps/Apps.slnx -- /v:detailed -- /Logger:"console;ver
 # Via environment variable
 set MSBUILD_PATH=C:\CustomVS\MSBuild\MSBuild.exe
 set VSTEST_PATH=C:\CustomVS\vstest.console.exe
-dotnet cake --solution=SRC/Apps/Apps.slnx
+dotnet cake --script=build/build.cake --solution=SRC/Apps/Apps.slnx
 
 # Via CLI argument
-dotnet cake --solution=SRC/Apps/Apps.slnx --msbuild-path=C:\CustomVS\MSBuild\MSBuild.exe --vstest-path=C:\CustomVS\vstest.console.exe
+dotnet cake --script=build/build.cake --solution=SRC/Apps/Apps.slnx --msbuild-path=C:\CustomVS\MSBuild\MSBuild.exe --vstest-path=C:\CustomVS\vstest.console.exe
 ```
 
 ---
@@ -250,7 +260,7 @@ dotnet cake --solution=SRC/Apps/Apps.slnx --msbuild-path=C:\CustomVS\MSBuild\MSB
 **Scenario**: Tests are in non-standard location
 
 ```bash
-dotnet cake --target=Test --test-src-path=CustomTests
+dotnet cake --script=build/build.cake --target=Test --test-src-path=CustomTests
 ```
 
 ---
@@ -258,7 +268,7 @@ dotnet cake --target=Test --test-src-path=CustomTests
 ### Generate Test Report
 
 ```bash
-dotnet cake --solution=SRC/Apps/Apps.slnx -- /p:Configuration=Release -- /Logger:trx /ResultsDirectory:TestResults
+dotnet cake --script=build/build.cake --solution=SRC/Apps/Apps.slnx -- /p:Configuration=Release -- /Logger:trx /ResultsDirectory:TestResults
 ```
 
 **Output**: `TestResults/*.trx` files (VSTest format)
@@ -295,7 +305,7 @@ steps:
 - task: PowerShell@2
   displayName: 'Build and Test'
   inputs:
-    script: 'dotnet cake --solution=SRC/Apps/Apps.slnx -- /p:Configuration=Release -- /Logger:trx /ResultsDirectory:$(Agent.TempDirectory)'
+    script: 'dotnet cake --script=build/build.cake --solution=SRC/Apps/Apps.slnx -- /p:Configuration=Release -- /Logger:trx /ResultsDirectory:$(Agent.TempDirectory)'
     failOnStderr: false
 
 - task: PublishTestResults@2
@@ -337,7 +347,7 @@ jobs:
       run: dotnet tool restore
 
     - name: Build and Test
-      run: dotnet cake --solution=SRC/Apps/Apps.slnx -- /p:Configuration=Release -- /Parallel
+      run: dotnet cake --script=build/build.cake --solution=SRC/Apps/Apps.slnx -- /p:Configuration=Release -- /Parallel
 
     - name: Upload Test Results
       if: always()
@@ -407,7 +417,7 @@ dotnet tool restore
 ```
 
 **Possible Causes**:
-1. Test projects not built yet → Run `dotnet cake --target=Build --solution=...` first
+1. Test projects not built yet → Run `dotnet cake --script=build/build.cake --target=Build --solution=...` first
 2. Test DLLs don't match naming convention → Rename to `*_Test.dll`
 3. Wrong output path → Ensure tests output to `bin\Debug\net10.0-windows*\win-x64\`
 
@@ -429,7 +439,7 @@ dir /s /b TestSRC\*_Test.dll
 - Check path is correct (use `dir` to verify)
 - Use absolute path if needed:
   ```bash
-  dotnet cake --target=Build --solution=D:\Repos\MyApp\SRC\Apps\Apps.slnx
+  dotnet cake --script=build/build.cake --target=Build --solution=D:\Repos\MyApp\SRC\Apps\Apps.slnx
   ```
 
 ---
@@ -441,7 +451,7 @@ dir /s /b TestSRC\*_Test.dll
 **Debugging**:
 1. Run with verbose logging:
    ```bash
-   dotnet cake --target=Build --solution=SRC/Apps/Apps.slnx -- /v:detailed
+   dotnet cake --script=build/build.cake --target=Build --solution=SRC/Apps/Apps.slnx -- /v:detailed
    ```
 2. Check msbuild output for specific errors
 3. Try building directly in Visual Studio to isolate issue
@@ -455,7 +465,7 @@ dir /s /b TestSRC\*_Test.dll
 **Debugging**:
 1. Run with detailed test output:
    ```bash
-   dotnet cake --target=Test -- /Logger:"console;verbosity=detailed"
+   dotnet cake --script=build/build.cake --target=Test -- /Logger:"console;verbosity=detailed"
    ```
 2. Review test failure messages
 3. Run specific test in Visual Studio Test Explorer
@@ -468,9 +478,9 @@ dir /s /b TestSRC\*_Test.dll
 
 **Create PowerShell alias** (add to `$PROFILE`):
 ```powershell
-function Build-Solution { dotnet cake --target=Build --solution=SRC/Apps/Apps.slnx }
-function Test-All { dotnet cake --target=Test }
-function Build-And-Test { dotnet cake --solution=SRC/Apps/Apps.slnx }
+function Build-Solution { dotnet cake --script=build/build.cake --target=Build --solution=SRC/Apps/Apps.slnx }
+function Test-All { dotnet cake --script=build/build.cake --target=Test }
+function Build-And-Test { dotnet cake --script=build/build.cake --solution=SRC/Apps/Apps.slnx }
 
 Set-Alias build Build-Solution
 Set-Alias test Test-All
@@ -491,13 +501,13 @@ bt          # Build and test
 **File**: `build.cmd`
 ```batch
 @echo off
-dotnet cake --target=Build --solution=SRC/Apps/Apps.slnx %*
+dotnet cake --script=build/build.cake --target=Build --solution=SRC/Apps/Apps.slnx %*
 ```
 
 **File**: `test.cmd`
 ```batch
 @echo off
-dotnet cake --target=Test %*
+dotnet cake --script=build/build.cake --target=Test %*
 ```
 
 **Usage**:
