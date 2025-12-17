@@ -1,14 +1,28 @@
 {
-    "chat.promptFilesRecommendations": {
-        "speckit.constitution": true,
-        "speckit.specify": true,
-        "speckit.plan": true,
-        "speckit.tasks": true,
-        "speckit.implement": true
-    },
-    "chat.tools.terminal.autoApprove": {
-        ".specify/scripts/bash/": true,
-        ".specify/scripts/powershell/": true
-    }
+  // ターミナルコマンドの自動承認を有効化
+  "chat.tools.terminal.enableAutoApprove": true,
+
+  "chat.tools.terminal.autoApprove": {
+    // Restore tools: dotnet tool restore
+    "/^\\s*dotnet(?:\\.exe)?\\s+tool\\s+restore\\s*$/i": true,
+
+    // Help: dotnet cake --script=build/build.cake --target=Help
+    "/^\\s*dotnet(?:\\.exe)?\\s+cake\\b(?=[\\s\\S]*--script(?:=|\\s+)(?:\"|')?(?:\\.\\/[\\\\/]|\\.\\\\)?build[\\\\/]build\\.cake(?:\"|')?)(?=[\\s\\S]*--target(?:=|\\s+)Help\\b)[\\s\\S]*$/i": true,
+
+    // Build: dotnet cake --script=build/build.cake --target=Build --solution=<...> -- <msbuild-args...>
+    "/^\\s*dotnet(?:\\.exe)?\\s+cake\\b(?=[\\s\\S]*--script(?:=|\\s+)(?:\"|')?(?:\\.\\/[\\\\/]|\\.\\\\)?build[\\\\/]build\\.cake(?:\"|')?)(?=[\\s\\S]*--target(?:=|\\s+)Build\\b)(?=[\\s\\S]*--solution(?:=|\\s+)(?:\"|')?(?:\\.\\/[\\\\/]|\\.\\\\)?SRC[\\\\/]Apps[\\\\/]Apps\\.slnx(?:\"|')?)(?=[\\s\\S]*\\s--(?:\\s|$))[\\s\\S]*$/i": true,
+
+    // Test: dotnet cake --script=build/build.cake --target=Test -- <vstest-args...>
+    "/^\\s*dotnet(?:\\.exe)?\\s+cake\\b(?=[\\s\\S]*--script(?:=|\\s+)(?:\"|')?(?:\\.\\/[\\\\/]|\\.\\\\)?build[\\\\/]build\\.cake(?:\"|')?)(?=[\\s\\S]*--target(?:=|\\s+)Test\\b)(?=[\\s\\S]*\\s--(?:\\s|$))[\\s\\S]*$/i": true,
+
+    // Build + Test (default):
+    // dotnet cake --script=build/build.cake --solution=<...> -- <msbuild-args...> -- <vstest-args...>
+    // （--target を付けるなら BuildAndTest のみ許可）
+    "/^\\s*dotnet(?:\\.exe)?\\s+cake\\b(?=[\\s\\S]*--script(?:=|\\s+)(?:\"|')?(?:\\.\\/[\\\\/]|\\.\\\\)?build[\\\\/]build\\.cake(?:\"|')?)(?=[\\s\\S]*--solution(?:=|\\s+)(?:\"|')?(?:\\.\\/[\\\\/]|\\.\\\\)?SRC[\\\\/]Apps[\\\\/]Apps\\.slnx(?:\"|')?)(?=[\\s\\S]*\\s--\\s[\\s\\S]*\\s--(?:\\s|$))(?![\\s\\S]*--target(?:=|\\s+)(?!BuildAndTest\\b)(?:\"[^\"]+\"|'[^']+'|\\S+))[\\s\\S]*$/i": true,
+
+    // Debug filter: ... | Select-String -Pattern 'Resolved msbuild|Resolved vstest|Executing:|\[ERROR\]|\[WARNING\]'
+    // （文字列は多少揺れても通す：上の語が含まれればOK）
+    "/^\\s*Select-String\\b[\\s\\S]*\\b-Pattern\\b[\\s\\S]*(Resolved msbuild|Resolved vstest|Executing:|ERROR|WARNING)[\\s\\S]*$/i": true
+  }
 }
 
